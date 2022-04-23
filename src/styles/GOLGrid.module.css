@@ -1,0 +1,35 @@
+.gridFlexer{
+    flex:               1 0 0;
+    display:            flex;
+    justify-content:    center;
+    align-items:        center;
+    height:             100%;
+}
+
+.gridContainer{
+    display:            flex;
+    width:              min(100%, 750px);
+    height:             90%;
+    justify-content:    center;
+    align-items:        center;
+}
+
+.grid{
+    display:            grid;
+    padding:            0.25rem;
+    background-color:   var(--clear-color);
+}
+
+.editing{
+    gap: 1px;
+}
+
+.gridItem{
+    cursor: pointer;
+    background-color: var(--tertiary-color);   
+}
+
+.gridItemActive{
+    cursor: pointer;
+    background-color: var(--highlight-color);
+}

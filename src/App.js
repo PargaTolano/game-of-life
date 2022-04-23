@@ -1,23 +1,15 @@
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
+import GOLGrid from './components/GOLGrid';
+import GOLMenu from './components/GOLMenu';
+import Grid from './simulation/grid';
 import './App.css';
 
 function App() {
+  const [grid, setGrid] = useState(new Grid(40,40,200));
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <GOLMenu grid={grid}/>
+      <GOLGrid grid={grid}/>
     </div>
   );
 }
