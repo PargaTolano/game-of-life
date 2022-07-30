@@ -3,6 +3,7 @@
     padding:    1rem;
     background-color: var(--primary-color);
     flex: 0 0 auto;
+    box-sizing: border-box;
 }
 
 .actions{
@@ -37,7 +38,25 @@
     border-radius:  5px;
     outline:        none;
     font-size:      1rem;
-    color:          white;
+    color:          var(--clear-color);
     text-align:     center;
     background-color: transparent;
+    transition: color .3s;
+}
+
+.dimensionInput[disabled]{
+    color: var(--tertiary-color);
+}
+
+@media (max-width: 600px) {
+    .nav{
+        height: 3rem;
+    }
+    .action, .dimensionIcon{
+        font-size:      1.6rem;
+    }
+
+    .dimensionInput{
+        font-size:      .8rem;
+    }
 }

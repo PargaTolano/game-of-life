@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import Grid from '../simulation/grid';
+import useGridSimulation from '../hooks/useGridSimulation';
 
 import {
     MdDeleteOutline,
     MdBrush,
     MdPlayArrow,
     MdOutlinePause,
-    MdHeight
+    MdHeight,
+    MdTimer
 } from 'react-icons/md';
 
 import {
@@ -22,51 +24,17 @@ import styles from '../styles/GOLMenu.module.css';
  */
 const GOLMenu = ({grid}) => {
 
-    const [playing, setPlaying] = useState(false);
-    const [w, setW] = useState(grid.w);
-    const [h, setH] = useState(grid.h);
-
-    const onClickPlay = ()=>{
-        grid.resume();
-        setPlaying(true);
-    };
-
-    const onClickPause = ()=>{
-        grid.pause_simulation();
-        setPlaying(false);
-    };
-
-    const onClickRandomize = ()=>{
-        grid.randomize();
-    };
-
-    const onClickClear = ()=>{
-        grid.clear();
-    };
-
-    const onChangeW = e=>{
-        try {
-            let w = parseInt(e.target.value);
-            grid.resize(w, grid.h);
-            setW(w);
-        } catch {
-            if(e.target.value.length === 0){
-                setW(0);
-            } 
-        }
-    };
-
-    const onChangeH = e=>{
-        try {
-            let h = parseInt(e.target.value);
-            grid.resize(grid.w, h);
-            setH(h);
-        } catch {
-            if(e.target.value.length === 0){
-                setH(0);
-            } 
-        }
-    };
+    const {
+        playing,
+        refresh,
+        onChangeRefresh,
+        onClickPlay,
+        onClickPause,
+        onClickRandomize,
+        onClickClear,
+        onChangeW,
+        onChangeH
+    } = useGridSimulation(grid, 100);
 
     return (
         <nav className={styles.nav}>
@@ -100,15 +68,25 @@ const GOLMenu = ({grid}) => {
                 <input 
                     className={styles.dimensionInput}
                     type='text'
-                    value={w}
                     onChange={onChangeW}
+                    defaultValue={grid.w}
+                    disabled={playing}
                 />
                 <MdHeight className={styles.dimensionIcon}/>
                 <input
                     className={styles.dimensionInput}
                     type='text'
-                    value={h}
                     onChange={onChangeH}
+                    defaultValue={grid.h}
+                    disabled={playing}
+                />
+                <MdTimer className={styles.dimensionIcon}/>
+                <input
+                    className={styles.dimensionInput}
+                    type='text'
+                    onChange={onChangeRefresh}
+                    value={refresh}
+                    disabled={playing}
                 />
             </div>
         </nav>

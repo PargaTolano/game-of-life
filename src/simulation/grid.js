@@ -1,135 +1,82 @@
-const DIRECTIONS = [
-    [ 1, 0],
-    [-1, 0],
-    [ 0, 1],
-    [ 0,-1],
-    [ 1, 1],
-    [ 1,-1],
-    [-1, 1],
-    [-1,-1]
-];
-
 function randomBit(){
     return Math.random() <.5 ? 0 : 1;
 }
 
+const DIRECTIONS = [
+    [ 1, 0],[-1, 0],
+    [ 0, 1],[ 0,-1],
+    [ 1, 1],[ 1,-1],
+    [-1, 1],[-1,-1]
+];
+
 class Grid {
-    data;
-    w;
-    h;
-    refresh;
-    pause;
+    m_data=[]
+    m_width;
+    m_height;
 
-    changeListeners = [];
+    constructor(width, height){
+        this.m_width=width;
+        this.m_height=height;
+        this.clear();
+    }
 
-    constructor(w, h, refresh = 100){
-        this.data = Array.apply(null, Array(w*h)).fill(0);
-        this.w = w;
-        this.h = h;
-        this.refresh = refresh;
-        this.pause = true;
+    isCellSet(x,y){
+        return this.m_data[x][y]===1;
     }
-    toggleCell(idx){
-        if(!this.pause)
-            return;
-        this.data[idx]=this.data[idx] === 0 ? 1 : 0;
-        this.onChange();
+    toggleCell(x,y){
+        this.m_data[x][y]=this.m_data[x][y]===0 ? 1: 0;
+        return this.isCellSet(x,y);
     }
-    // O(mn) time O(mn) space
+    
     simulate(){
-        let w = this.w;
-        let h = this.h;
-        let sums = Array.apply(null, Array(w*h)).fill(0);
-        for(let i = 0; i < w; i++){
-            for(let j = 0; j < h; j++){
-                let sum = 0;
-                for( let dir of DIRECTIONS ){
-                    if( (i+dir[0] > -1)     && 
-                     (i+dir[0] < w)         && 
-                     (j+dir[1] > -1)        && 
-                     (j+dir[1] < h) 
-                    ){
-                        let row = (i+dir[0])*w;
-                        sum+=this.data[row+(j+dir[1])];
-                    }
-                }
-                sums[i*w+j] = sum;
-            }
-        }
-        for(let i = 0; i < w; i++){
-            for(let j = 0; j < h; j++){
-                let row = i*w;
-                if(sums[row+j] < 2 || sums[row+j]>3){
-                    this.data[row+j] = 0;
-                }
-                else if(sums[row+j] === 3){
-                    this.data[row+j] = 1;
-                }
-            }
-        }
+        let sumtable=Array.from(Array(this.m_width), ()=>Array(this.m_height).fill(0));
+        
+        this.traverse((x,y)=>{
+            DIRECTIONS.forEach(dir=>{
+                if( ((x+dir[0]) > -1)                && 
+                    ((x+dir[0]) <  this.m_width)     && 
+                    ((y+dir[1]) > -1)                && 
+                    ((y+dir[1]) <  this.m_height) 
+                )
+                    sumtable[x][y]+=this.m_data[x+dir[0]][y+dir[1]];
+            });  
+        });
 
-        this.onChange();
-    }
-
-    simulate_recurrent(){
-        let that = this;
-        const recur = ()=>{
-            if(that.pause)
-                return;
-            that.simulate();
-            setTimeout(recur, that.refresh);
-        };
-        requestAnimationFrame(recur);
-    }
-
-    pause_simulation(){
-        this.pause = true;
-        this.onChange();
-    }
-
-    resume(){
-        this.pause = false;
-        this.simulate_recurrent();
+        this.traverse((x,y)=>{
+            if(sumtable[x][y] < 2 || sumtable[x][y] > 3)
+                this.m_data[x][y] = 0;
+            else if(sumtable[x][y] === 3)
+                this.m_data[x][y] = 1;
+        });
     }
 
     clear(){
-        if (!this.pause)
-            return;
-        this.data = this.data.map(()=>0);
-        this.onChange(this.data);
+        this.m_data=Array.from(Array(this.m_width), ()=>Array(this.m_height).fill(0));
     }
-
+    resize(width, height){
+        this.m_width=width;
+        this.m_height=height;
+        this.clear();
+    }
     randomize(){
-        if (!this.pause)
-            return;
-        this.data = this.data.map( () => randomBit());
-        this.onChange(this.data);
+        this.m_data=Array.from(Array(this.m_width), ()=>Array(this.m_height).fill().map(()=>randomBit()));
     }
 
-    resize(w,h){
-        if(!this.pause)
-            return;
-
-        this.w = w;
-        this.h = h;
-        this.data = Array.apply(null, Array(w*h)).fill(0);
-        this.onChange(); 
+    /**
+     * @param {Function} fn
+     */
+    traverse(fn){
+        for(let x=0; x<this.m_width; x++)
+            for(let y=0; y<this.m_height; y++){
+                fn( x, y, this.m_data[x][y]);
+            }
     }
 
-    //events
-    onChange(){
-        for(let list of this.changeListeners){
-            list(this.data);
-        }
+    get w(){
+        return this.m_width;
     }
-
-    addChangeListener(x){
-        this.changeListeners.push(x);
-    }
-
-    removeChangeListener(x){
-        let idx = this.changeListeners.indexOf(x)
-        this.changeListeners.splice(idx,1);
+    get h(){
+        return this.m_height;
     }
 }
 

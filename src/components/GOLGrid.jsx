@@ -13,18 +13,13 @@ const GOLGridItem = ({grid, idx, active})=>{
     const onClick = ()=>{
         grid.toggleCell(idx);
     };
-    const onMouseEnter = ()=>{
-        if( !isMouseDown )
-            return;
-        grid.toggleCell(idx);
-    };
 
     return (
         <div 
+            data-idx={idx}
             draggable={false}
             className={gridClass}
             onMouseDown={onClick}
-            onMouseEnter={onMouseEnter}
         ></div>
     );
 };
@@ -41,17 +36,15 @@ const GOLGrid = ({grid}) => {
     };
 
     useEffect(()=>{
-        const onMouseDown = ()=>isMouseDown=true;
-        const onMouseUp = ()=>isMouseDown=false;
-        gridUIRef.current.addEventListener('mousedown', onMouseDown);
-        gridUIRef.current.addEventListener('mouseup', onMouseUp)
-
-        //grid event
+        const onMouseOver = e=>{
+            let idx = parseInt( e.target.getAttribute('data-idx') );
+            grid.toggleCell(idx);
+        };
+        gridUIRef.current.addEventListener('mouseover', onMouseOver);
         grid.addChangeListener(onChangeGrid);
         
         return ()=>{
-            gridUIRef.current.removeEventListener('mousedown', onMouseDown);
-            gridUIRef.current.removeEventListener('mouseup', onMouseUp);
+            gridUIRef.current.removeEventListener('mouseover', onMouseOver);
             grid.removeChangeListener(onChangeGrid);
         };
     },[]);
